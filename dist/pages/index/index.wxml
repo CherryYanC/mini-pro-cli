@@ -21,6 +21,6 @@
     <text class="user-motto">{{motto}}</text>
   </view> -->
   <view class="usermotto">
-    <text class="test-text">座右铭？</text>
+    <text class="test-text">座右铭: 机会是给有准备的人</text>
   </view>
 </view>

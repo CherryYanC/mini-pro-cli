@@ -1,15 +1,2 @@
-"use strict";
-App({
-    globalData: {},
-    onLaunch: function () {
-        var logs = wx.getStorageSync('logs') || [];
-        logs.unshift(Date.now());
-        console.log('wakakakk???a');
-        wx.setStorageSync('logs', logs);
-        wx.login({
-            success: function (res) {
-                console.log(res.code);
-            },
-        });
-    },
-});
+"use strict";App({globalData:{},onLaunch:function(){var o=wx.getStorageSync("logs")||[];o.unshift(Date.now()),wx.setStorageSync("logs",o),wx.login({success:function(o){console.log(o.code)}})}});
+//# sourceMappingURL=app.js.map

@@ -18,7 +18,7 @@ Page({
     })
   },
   onLoad() {
-    console.log('OMG, so beautiful day, nice place ?? wakada')
+    console.log('OMG, that is ok ?')
     if (wx.getUserProfile('' as any)) {
       this.setData({
         canIUseGetUserProfile: true
