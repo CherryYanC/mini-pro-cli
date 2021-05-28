@@ -1,5 +1,4 @@
-// TODO: buid和watch，任务配置
-
+// TODO： 图片以及其他文件的压缩处理
 
 const gulp = require('gulp')
 const ts = require('gulp-typescript')
@@ -10,11 +9,26 @@ const rename = require('gulp-rename'); // 重命名插件
 const sass = require('gulp-sass');
 const composer = require('gulp-uglify/composer')
 const uglifyJs = require('uglify-js')
+const gulpIf = require('gulp-if')
 // 便于debug时找到映射到源码进行调试
 const sourcemaps = require('gulp-sourcemaps')
 
 const minify = composer(uglifyJs, console)
 const output = './dist'
+
+let config = {
+  sourcemap: true,  // 是否开启sourcemap
+  compress: false,  // 是否压缩代码
+}
+
+const setBuildConfig = cb => {
+  config = {
+    ...config,
+    sourcemap: false,
+    compress: true
+  }
+  cb()
+}
 
 /**
  * 通过gulp.lastRun()实现增量编译，减少每次修改或者移动的编译时间
@@ -55,7 +69,7 @@ function copy() {
 // 编译Ts
 function compileTs() {
   return gulp.src('src/**/*.ts', {since: since(compileTs)}) // 增量编译
-    .pipe(sourcemaps.init())
+    .pipe(gulpIf(config.sourcemap, sourcemaps.init()))
     .pipe(plumber({
       errorHandler: function (error) {
         console.log(error.toString())
@@ -63,18 +77,18 @@ function compileTs() {
       }
     }))
     .pipe(tsProject())
-    .pipe(minify({}))
-    .pipe(sourcemaps.write('.'))    // 以.map文件形式导出至同级目录
+    .pipe(gulpIf(config.sourcemap, sourcemaps.write('.')))    // 以.map文件形式导出至同级目录
+    .pipe(gulpIf(config.compress, minify({})))
     .pipe(gulp.dest(output))
 }
 
 // 编译sass
 function compileScss() {
   return gulp.src('./src/**/*.scss', {since: since(compileScss)}) // 增量编译
-    .pipe(sourcemaps.init())
+    .pipe(gulpIf(config.sourcemap, sourcemaps.init()))
     .pipe(sass().on('error', sass.logError))
     .pipe(rename({ extname: '.wxss' }))
-    .pipe(sourcemaps.write('.'))    // 以.map文件形式导出至同级目录
+    .pipe(gulpIf(config.sourcemap, sourcemaps.write('.')))    // 以.map文件形式导出至同级目录
     .pipe(gulp.dest(output))
 }
 
@@ -86,7 +100,9 @@ function watchTask(done) {
   done()
 }
 
+const _build = gulp.series(copy, gulp.parallel(compileScss, compileTs))
+
 gulp.task('clean:dist', clean)
-gulp.task('build', gulp.series(copy, gulp.parallel(compileScss, compileTs)))
-gulp.task('watch', debounce(gulp.series(copy, gulp.parallel(compileScss, compileTs), watchTask), 2500))
+gulp.task('build', gulp.series(clean, setBuildConfig, _build))
+gulp.task('watch', debounce(gulp.series(_build, watchTask), 2500))
 
