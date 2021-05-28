@@ -18,7 +18,7 @@ Page({
     })
   },
   onLoad() {
-    console.log('OMG, that is ok ?')
+    console.log('OMG, that is ok ? kkkkk')
     if (wx.getUserProfile('' as any)) {
       this.setData({
         canIUseGetUserProfile: true
